@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
+
+// TODO move memory logic to a service
 
 class ImportPage extends StatefulWidget {
   const ImportPage({
@@ -19,7 +22,7 @@ class ImportPage extends StatefulWidget {
 class _ImportPageState extends State<ImportPage> {
   List<PlatformFile> _files = [];
 
-  Future<void> _pickFiles() async {
+  Future<void> _pickFiles(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform
         .pickFiles(type: FileType.any, allowMultiple: true);
 
@@ -37,10 +40,11 @@ class _ImportPageState extends State<ImportPage> {
       _files = result?.files ?? [];
     });
 
-    _importFiles(_files);
+    await _importFiles(_files);
+    Navigator.pop(context);
   }
 
-  void _importFiles(List<PlatformFile> files) async {
+  Future<void> _importFiles(List<PlatformFile> files) async {
     final appDocuments = await getApplicationDocumentsDirectory();
 
     for (var pFile in files) {
@@ -71,17 +75,47 @@ class _ImportPageState extends State<ImportPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
-        middle: Text('Import your files here'),
+        middle: Text('Import'),
       ),
       child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            CupertinoButton(
-                child: Text('Import from files'), onPressed: _pickFiles),
-            Column(
-              children: _files.map((e) => Text(e.name)).toList(),
-            )
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                      'put audio files on your device, then select them using the button below.',
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        'more import options are coming.',
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: Colors.black87,
+                child: CupertinoButton(
+                    onPressed: () => _pickFiles(context),
+                    child: const Text(
+                      'Import from files',
+                      style: TextStyle(color: Colors.white),
+                    )),
+              ),
+            ),
           ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.

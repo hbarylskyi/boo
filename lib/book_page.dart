@@ -1,25 +1,24 @@
 import 'dart:io';
 
-import 'package:audiobooks_minimal/memory_service.dart';
+import 'package:audiobooks_minimal/main.dart';
+import 'package:audiobooks_minimal/memory/memory_service.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:just_audio/just_audio.dart';
-import 'books_player.dart';
+import 'audio/boo_audio_handler.dart';
+import 'audio/books_player.dart';
 import 'books_page.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 
-import 'package:audio_service/audio_service.dart';
-
-class Book {}
-
 class Chapter {
   File file;
-  late Metadata? meta;
+  Metadata? meta;
+  late Future<Metadata> metaFuture;
   late String name;
 
   Chapter({required this.file}) {
     name = getFileOrDirName(file);
 
-    MetadataRetriever.fromFile(file).then((meta) => this.meta = meta);
+    metaFuture =
+        MetadataRetriever.fromFile(file).then((meta) => this.meta = meta);
   }
 }
 
@@ -37,7 +36,6 @@ class BookPage extends StatefulWidget {
 
 class _BookPageState extends State<BookPage> {
   List<Chapter> _chapters = [];
-  final MemoryService _memory = MemoryService();
 
   @override
   initState() {
@@ -54,47 +52,33 @@ class _BookPageState extends State<BookPage> {
       _chapters = chapters;
     });
 
-    appPlayer.playbackEventStream.listen((event) {});
-  }
-
-  _playChapter(Chapter chapter) async {
-    Metadata? meta = chapter.meta;
-    if (meta == null) return Container();
-
-    AudioSource item = AudioSource.uri(
-      Uri.file(chapter.file.path),
-      tag: MediaItem(
-        id: chapter.file.path,
-        title: meta.trackName ?? chapter.name,
-        artist: meta.albumName ?? meta.albumArtistName,
-      ),
-    );
-
-    await appPlayer.setAudioSource(item);
-    await appPlayer.play();
-
-    _memory.setLastPlayedChapter(chapter);
+    audioHandler.appPlayer.playbackEventStream.listen((event) {});
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text(widget.name),
+        ),
         child: SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: Center(
+          bottom: false,
+          child: Column(
+            children: [
+              Expanded(
                 child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _chapters.map(_renderChapter).toList(),
-            )),
+                  children: _chapters.map(_renderChapter).toList(),
+                ),
+              ),
+              const BooksPlayer()
+            ],
           ),
-          const BooksPlayer()
-        ],
-      ),
-    ));
+        ));
   }
 
-  Widget _renderChapter(Chapter chapter) => CupertinoButton(
-      onPressed: _playChapter(chapter), child: Text(chapter.name));
+  Widget _renderChapter(Chapter chapter) {
+    return CupertinoButton(
+        onPressed: () => audioHandler.playChapter(chapter),
+        child: Text(chapter.name));
+  }
 }
