@@ -17,6 +17,22 @@ class BooAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   Duration audioSpeedLongPressIncrementDuration =
       const Duration(milliseconds: 1500);
 
+  late StreamSubscription<double> speedStream;
+  late StreamSubscription<Duration> positionStream;
+  late StreamSubscription<Duration?> durationStream;
+
+  BooAudioHandler() {
+    speedStream = appPlayer.speedStream.listen((speedVal) {});
+    positionStream = appPlayer.positionStream.listen((event) {});
+    durationStream = appPlayer.durationStream.listen((event) {});
+  }
+
+  dispose() {
+    speedStream.cancel();
+    positionStream.cancel();
+    durationStream.cancel();
+  }
+
   // final PlayerState state = PlayerState(false, ProcessingState.loading);
 
   void speedDown() {

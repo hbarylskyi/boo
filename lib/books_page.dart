@@ -64,7 +64,7 @@ class _BooksPageState extends State<BooksPage> {
         navigationBar: CupertinoNavigationBar(
           middle: Text('Books'),
           trailing: CupertinoButton(
-              child: Icon(CupertinoIcons.tray_arrow_down),
+              child: const Icon(CupertinoIcons.tray_arrow_down),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -90,7 +90,7 @@ class _BooksPageState extends State<BooksPage> {
                   ],
                 ),
               ),
-              BooksPlayer()
+              const BooksPlayer()
             ],
           ),
         ));

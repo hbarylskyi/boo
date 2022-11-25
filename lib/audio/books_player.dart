@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:audiobooks_minimal/main.dart';
+import 'package:audiobooks_minimal/widgets/player_progress.dart';
 import 'package:blur/blur.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
+import '../widgets/progress_bar.dart';
 import 'boo_audio_handler.dart';
 import '../memory/memory_service.dart';
 
@@ -34,7 +36,7 @@ class _BooksPlayerState extends State<BooksPlayer> {
   String? _chapterName;
   String? _bookTitle;
   double _speed = 1;
-  Duration? _duration;
+  Duration _duration = const Duration(seconds: 0);
   Duration _position = const Duration(seconds: 0);
 
   @override
@@ -47,7 +49,6 @@ class _BooksPlayerState extends State<BooksPlayer> {
       setState(() {
         _chapterName = tag.title;
         _bookTitle = tag.artist;
-        _duration = event?.currentSource?.duration;
       });
     });
 
@@ -77,6 +78,7 @@ class _BooksPlayerState extends State<BooksPlayer> {
 
     _durationStream = appPlayer.durationStream.listen((event) {
       setState(() {
+        if (event == null) return;
         _duration = event;
       });
     });
@@ -114,13 +116,18 @@ class _BooksPlayerState extends State<BooksPlayer> {
   //   return oe;
   // }
 
-  var height = 20;
   @override
   Widget build(BuildContext context) {
-    var duration = _duration?.inSeconds;
     Color? primaryColor = CupertinoTheme.of(context).primaryColor;
     Color? primaryContrastingColor =
         CupertinoTheme.of(context).primaryContrastingColor;
+
+    String durationText = '';
+
+    if (_duration.inSeconds != 0) {
+      String dur = _duration.toString();
+      durationText = ' ($dur)';
+    }
 
     String speedText = '';
 
@@ -128,11 +135,6 @@ class _BooksPlayerState extends State<BooksPlayer> {
       var rounded = _speed.toStringAsFixed(2);
       speedText = ' x$rounded';
     }
-
-    int value =
-        (_position.inMilliseconds / _duration!.inMilliseconds * 100).toInt();
-
-    int maxValue = 100;
 
     return Container(
       color: primaryColor,
@@ -143,8 +145,8 @@ class _BooksPlayerState extends State<BooksPlayer> {
             alignment: Alignment.center,
             children: [
               Padding(
-                padding:
-                    EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 8),
+                padding: const EdgeInsets.only(
+                    left: 10, right: 10, top: 10, bottom: 8),
                 child: Row(
                   children: [
                     Expanded(
@@ -153,49 +155,13 @@ class _BooksPlayerState extends State<BooksPlayer> {
                           style: TextStyle(
                               color: primaryContrastingColor, fontSize: 14)),
                     ),
-                    Text('($duration) $speedText',
+                    Text('$durationText $speedText',
                         style: TextStyle(
                             color: primaryContrastingColor, fontSize: 14)),
                   ],
                 ),
               ),
-              SizedBox(
-                height: 35,
-                child: Flex(
-                  direction: Axis.horizontal,
-                  children: [
-                    Flexible(
-                      flex: value,
-                      child: Container(
-                        color: Colors.black87.withOpacity(0),
-                        child: ClipRect(
-                          child: BackdropFilter(
-                              filter: const ColorFilter.matrix([
-                                -1, 0, 0, 0,
-                                255, // inverts colors under the filter
-                                0, -1, 0, 0, 255, //
-                                0, 0, -1, 0, 255, //
-                                0, 0, 0, 1, 0, //
-                              ]),
-                              child: Container()),
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: maxValue - value,
-                      child: Container(
-                        color: Colors.black87.withOpacity(0),
-                      ),
-                    ),
-                    // Flexible(
-                    //   flex: widget.maxValue - value,
-                    //   child: Container(
-                    //     color: Colors.black.withOpacity(0.3),
-                    //   ),
-                    // ),
-                  ],
-                ),
-              )
+              const PlayerProgress()
             ],
           ),
           Padding(

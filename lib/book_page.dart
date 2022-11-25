@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:audiobooks_minimal/main.dart';
 import 'package:audiobooks_minimal/memory/memory_service.dart';
+import 'package:audiobooks_minimal/widgets/player_progress.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'audio/boo_audio_handler.dart';
 import 'audio/books_player.dart';
 import 'books_page.dart';
@@ -51,8 +53,6 @@ class _BookPageState extends State<BookPage> {
     setState(() {
       _chapters = chapters;
     });
-
-    audioHandler.appPlayer.playbackEventStream.listen((event) {});
   }
 
   @override
@@ -77,8 +77,17 @@ class _BookPageState extends State<BookPage> {
   }
 
   Widget _renderChapter(Chapter chapter) {
-    return CupertinoButton(
-        onPressed: () => audioHandler.playChapter(chapter),
-        child: Text(chapter.name));
+    return Column(
+      children: [
+        Stack(
+          children: [
+            CupertinoButton(
+                onPressed: () => audioHandler.playChapter(chapter),
+                child: Text(chapter.name)),
+            const PlayerProgress()
+          ],
+        ),
+      ],
+    );
   }
 }
