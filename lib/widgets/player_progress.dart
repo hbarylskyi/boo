@@ -13,7 +13,6 @@ class PlayerProgress extends StatefulWidget {
 }
 
 class _PlayerProgressState extends State<PlayerProgress> {
-  late final StreamSubscription _speedStream = audioHandler.positionStream;
   late final StreamSubscription _positionStream;
   late final StreamSubscription _durationStream;
 
@@ -40,10 +39,21 @@ class _PlayerProgressState extends State<PlayerProgress> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _positionStream.cancel();
     _durationStream.cancel();
+  }
+
+  _seek(double newProgressPercentage) {
+    int? currentFileDuration = audioHandler.appPlayer.duration?.inMilliseconds;
+
+    if (currentFileDuration == null) return;
+
+    int newPosition =
+        (currentFileDuration * newProgressPercentage).toInt();
+
+    // TODO move to audio service
+    audioHandler.appPlayer.seek(Duration(milliseconds: newPosition));
   }
 
   @override
@@ -51,6 +61,6 @@ class _PlayerProgressState extends State<PlayerProgress> {
     double percentage = _position.inMilliseconds / _duration.inMilliseconds;
     double progress = percentage.isNaN ? 0 : percentage;
 
-    return ProgressBar(progress: progress);
+    return ProgressBar(progress: progress, onSeek: _seek);
   }
 }

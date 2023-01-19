@@ -1,10 +1,13 @@
-import 'package:audiobooks_minimal/main.dart';
 import 'package:flutter/cupertino.dart';
+
+/// Base widget for progress bars
 
 class ProgressBar extends StatefulWidget {
   final double progress;
+  final Function(double) onSeek;
 
-  const ProgressBar({Key? key, required this.progress}) : super(key: key);
+  const ProgressBar({Key? key, required this.progress, required this.onSeek})
+      : super(key: key);
 
   @override
   State<ProgressBar> createState() => _ProgressBarState();
@@ -20,6 +23,7 @@ class _ProgressBarState extends State<ProgressBar> {
   ];
 
   late final GlobalKey _progressBarWidget = GlobalKey();
+  final double _progressBarHeight = 35;
 
   _onTapDown(TapDownDetails details) {
     _seek(details.localPosition.dx);
@@ -30,41 +34,32 @@ class _ProgressBarState extends State<ProgressBar> {
   }
 
   _seek(double dx) {
-    setState(() {
-      double width = _progressBarWidget.currentContext?.size?.width ?? 0;
+    double progressBarWidth =
+        _progressBarWidget.currentContext?.size?.width ?? 0;
+    double newProgress = dx / progressBarWidth;
 
-      double newProgress = dx / width;
+    if (newProgress.isNaN) return;
 
-      if (!newProgress.isNaN) {
-        int? durationMillis = audioHandler.appPlayer.duration?.inMilliseconds;
-
-        if (durationMillis == null) return;
-
-        int newPosition = (durationMillis * newProgress).toInt();
-
-        audioHandler.appPlayer.seek(Duration(milliseconds: newPosition));
-      }
-    });
+    widget.onSeek(newProgress);
   }
 
   @override
   Widget build(BuildContext context) {
     Color primaryColor = CupertinoTheme.of(context).primaryColor;
-    double height = 35;
 
-    int flexInt = (widget.progress * 100000).toInt();
+    int flex = (widget.progress * 100000).toInt();
 
     return GestureDetector(
       key: _progressBarWidget,
       onTapDown: _onTapDown,
       onPanUpdate: _onPanUpdate,
       child: SizedBox(
-        height: height,
+        height: _progressBarHeight,
         child: Flex(
           direction: Axis.horizontal,
           children: [
             Flexible(
-              flex: flexInt,
+              flex: flex,
               child: Container(
                 color: primaryColor.withOpacity(0),
                 child: ClipRect(
@@ -75,7 +70,7 @@ class _ProgressBarState extends State<ProgressBar> {
               ),
             ),
             Flexible(
-              flex: 100000 - flexInt,
+              flex: 100000 - flex,
               child: Container(color: primaryColor.withOpacity(0)),
             ),
           ],

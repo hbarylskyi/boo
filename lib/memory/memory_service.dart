@@ -1,8 +1,9 @@
 import 'dart:io';
 
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../book_page.dart';
+import '../common/Chapter.dart';
 
 class MemoryService {
   SharedPreferences? _prefsInstance;
@@ -11,6 +12,11 @@ class MemoryService {
     _prefsInstance ??= await SharedPreferences.getInstance();
 
     return _prefsInstance as SharedPreferences;
+  }
+
+  Future<List<FileSystemEntity>> readSavedBooks() async {
+    final appDocumentsDir = await getApplicationDocumentsDirectory();
+    return appDocumentsDir.list().toList();
   }
 
   setLastPlayedChapterPosition(Duration position) async {
@@ -36,5 +42,13 @@ class MemoryService {
 
     if (path != null) return Chapter(file: File(path));
     return null;
+  }
+
+  Future<List<Chapter>> getBookChapters(Directory directory) async {
+    List<Chapter> chapters =
+        await directory.list().map((f) => Chapter(file: f as File)).toList();
+    print("read chapters: ${chapters.map((c) => c.toString())}");
+
+    return chapters;
   }
 }

@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 
 // TODO move memory logic to a service
-
 class ImportPage extends StatefulWidget {
   const ImportPage({
     super.key,
@@ -29,18 +28,15 @@ class _ImportPageState extends State<ImportPage> {
     String? firstPath = result?.files[0].path;
 
     if (result?.files == null || firstPath == null) {
-      throw ErrorDescription('Damn dude its empty here');
+      throw ErrorDescription('No files picked');
     }
-
-    // var file = File(firstPath);
-    // var metadata = await MetadataRetriever.fromFile(file);
-    // print(metadata);
 
     setState(() {
       _files = result?.files ?? [];
     });
 
     await _importFiles(_files);
+
     Navigator.pop(context);
   }
 
@@ -58,15 +54,12 @@ class _ImportPageState extends State<ImportPage> {
             metadata.authorName ??
             'Unknown book';
 
-        Directory bookDir = Directory(appDocuments.path + '/' + bookName);
+        Directory bookDir = Directory('${appDocuments.path}/$bookName');
         bool exists = await bookDir.exists();
 
         if (!exists) {
           await bookDir.create();
         }
-
-        File copiedFile = await file.copy(bookDir.path + '/' + pFile.name);
-        print(copiedFile.path + ' copied');
       }
     }
   }
