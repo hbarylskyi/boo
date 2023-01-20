@@ -60,6 +60,8 @@ class _ImportPageState extends State<ImportPage> {
         if (!exists) {
           await bookDir.create();
         }
+
+        await file.copy('${bookDir.path}/${pFile.name}');
       }
     }
   }
