@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
-
-import '../books_page.dart';
+import '../pages/books_page.dart';
 
 class Chapter {
   File file;

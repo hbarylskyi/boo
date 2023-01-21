@@ -1,13 +1,15 @@
 import 'dart:io';
 
-import 'package:audiobooks_minimal/book_page.dart';
 import 'package:audiobooks_minimal/audio/books_player.dart';
-import 'package:audiobooks_minimal/import_page.dart';
+import 'package:audiobooks_minimal/cubits/BooksCubit.dart';
 import 'package:audiobooks_minimal/main.dart';
 import 'package:audiobooks_minimal/memory/memory_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'common/Chapter.dart';
+import '../common/Chapter.dart';
+import 'import_page.dart';
+import 'books/book_page.dart';
 
 // reads file/directory name
 String getFileName(FileSystemEntity dir) {
@@ -24,27 +26,19 @@ class BooksPage extends StatefulWidget {
 }
 
 class _BooksPageState extends State<BooksPage> {
-  List<FileSystemEntity> _books = [];
   final MemoryService _memory = MemoryService();
+  final booksCubit = BooksCubit();
 
   @override
   void initState() {
     super.initState();
-    _readSavedBooks();
-    _readLastPlayedChapter();
+    booksCubit.read();
+    _playLastPlayedChapter();
 
     audioHandler.play();
   }
 
-  Future<void> _readSavedBooks() async {
-    List<FileSystemEntity> books = await _memory.readSavedBooks();
-
-    setState(() {
-      _books = books;
-    });
-  }
-
-  Future<void> _readLastPlayedChapter() async {
+  Future<void> _playLastPlayedChapter() async {
     Chapter? lastChapter = await _memory.getLastPlayedChapter();
     Duration? lastPosition = await _memory.getLastPlayedChapterPosition();
 
@@ -81,7 +75,6 @@ class _BooksPageState extends State<BooksPage> {
                 );
               }),
         ),
-
         child: SafeArea(
           bottom: false,
           child: Column(
@@ -91,14 +84,17 @@ class _BooksPageState extends State<BooksPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: _books.isNotEmpty
-                          ? GridView.count(
-                              crossAxisCount: 2,
-                              children: _books.map(_renderBook).toList(),
-                            )
-                          : const Center(
-                              child: Text('No books. Use the import button')),
+                    BlocBuilder<BooksCubit, List<FileSystemEntity>>(
+                      bloc: booksCubit,
+                      builder: (BuildContext context, books) => Expanded(
+                        child: books.isNotEmpty
+                            ? GridView.count(
+                                crossAxisCount: 2,
+                                children: books.map(_renderBook).toList(),
+                              )
+                            : const Center(
+                                child: Text('No books. Use the import button')),
+                      ),
                     ),
                   ],
                 ),

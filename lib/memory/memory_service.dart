@@ -44,7 +44,7 @@ class MemoryService {
     return null;
   }
 
-  Future<List<Chapter>> getBookChapters(Directory directory) async {
+  Future<List<Chapter>> readChapters(Directory directory) async {
     List<Chapter> chapters =
         await directory.list().map((f) => Chapter(file: f as File)).toList();
     print("read chapters: ${chapters.map((c) => c.toString())}");

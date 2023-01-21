@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:audiobooks_minimal/pages/books_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'audio/boo_audio_handler.dart';
-import 'books_page.dart';
 
 late BooAudioHandler audioHandler;
 
@@ -29,14 +29,13 @@ class AudiobooksApp extends StatelessWidget {
       primaryColor: Colors.black87,
       primaryContrastingColor: Colors.white60,
       brightness: Brightness.light,
-
       textTheme: const CupertinoTextThemeData(primaryColor: Colors.white60),
     );
 
     return CupertinoApp(
       title: 'Boo',
       theme: booTheme,
-      home: BooksPage(),
+      home: const BooksPage(),
     );
   }
 }
