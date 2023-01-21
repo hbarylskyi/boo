@@ -17,71 +17,35 @@ class BooAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   Duration audioSpeedLongPressIncrementDuration =
       const Duration(milliseconds: 1500);
 
-  late StreamSubscription<double> speedStream;
-  late StreamSubscription<Duration> positionStream;
-  late StreamSubscription<Duration?> durationStream;
-
-  BooAudioHandler() {
-    speedStream = appPlayer.speedStream.listen((speedVal) {});
-    positionStream = appPlayer.positionStream.listen((event) {});
-    durationStream = appPlayer.durationStream.listen((event) {});
-  }
-
-  dispose() {
-    speedStream.cancel();
-    positionStream.cancel();
-    durationStream.cancel();
-  }
-
-  // final PlayerState state = PlayerState(false, ProcessingState.loading);
+  BooAudioHandler();
 
   void speedDown() {
     appPlayer.setSpeed(appPlayer.speed - 0.05);
-  }
-
-  void speedDownLongPressStart() {
-    speedDown();
-
-    speedDownTimer =
-        Timer(audioSpeedLongPressIncrementDuration, () => speedDown());
-  }
-
-  void speedDownLongPressStop() {
-    speedDownTimer?.cancel();
   }
 
   void speedUp() {
     appPlayer.setSpeed(appPlayer.speed + 0.05);
   }
 
-  void speedUpLongPressStart() {
-    speedUp();
-
-    speedUpTimer = Timer(audioSpeedLongPressIncrementDuration, () => speedUp());
-  }
-
-  void speedUpLongPressStop() {
-    speedUpTimer?.cancel();
-  }
-
+  @override
   Future<void> play() async {
     appPlayer.play();
   }
 
+  @override
   Future<void> pause() async {
     appPlayer.pause();
   }
 
+  @override
   Future<void> stop() async {
     appPlayer.stop();
   }
 
+  @override
   Future<void> seek(Duration position) async {
     appPlayer.seek(position);
   }
-
-  // Future<void> skipToQueueItem(int i) async {
-  // }
 
   playChapter(Chapter chapter, [Duration? position]) async {
     Metadata metadata = await chapter.metadataFuture;

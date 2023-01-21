@@ -19,13 +19,12 @@ class BooksPlayer extends StatefulWidget {
   State<BooksPlayer> createState() => _BooksPlayerState();
 }
 
-//TODO encapsulate appPlayer
+// TODO encapsulate appPlayer
+// TODO use blocs
 class _BooksPlayerState extends State<BooksPlayer> {
   late StreamSubscription _playerStateStream;
-  late StreamSubscription _playbackEventStream;
   late StreamSubscription _sequenceStateStream;
   late StreamSubscription _speedStream;
-  late StreamSubscription _positionStream;
   late StreamSubscription _durationStream;
 
   var appPlayer = audioHandler.appPlayer;
@@ -37,7 +36,6 @@ class _BooksPlayerState extends State<BooksPlayer> {
   String? _bookTitle;
   double _speed = 1;
   Duration _duration = const Duration(seconds: 0);
-  Duration _position = const Duration(seconds: 0);
 
   @override
   void initState() {
@@ -58,21 +56,9 @@ class _BooksPlayerState extends State<BooksPlayer> {
       });
     });
 
-    _playbackEventStream = appPlayer.playbackEventStream.listen((event) {
-      if (event.processingState == ProcessingState.completed) {
-        // TODO implement
-      }
-    });
-
     _speedStream = appPlayer.speedStream.listen((speedVal) {
       setState(() {
         _speed = speedVal;
-      });
-    });
-
-    _positionStream = appPlayer.positionStream.listen((event) {
-      setState(() {
-        _position = event;
       });
     });
 
@@ -95,26 +81,10 @@ class _BooksPlayerState extends State<BooksPlayer> {
     super.dispose();
     _timer.cancel();
     _playerStateStream.cancel();
-    _playbackEventStream.cancel();
     _sequenceStateStream.cancel();
     _speedStream.cancel();
     _durationStream.cancel();
-    _positionStream.cancel();
   }
-
-  // OverlayEntry _createOverlayItem() {
-  //   OverlayEntry oe = OverlayEntry(builder: (context) {
-  //     return Positioned(
-  //       height: 100,
-  //       width: 100,
-  //       child: SizedBox(height: 100, width: 100, child: Text('whatever!')),
-  //     );
-  //   });
-  //
-  //   Future.delayed(Duration(seconds: 5), () => oe.remove());
-  //
-  //   return oe;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -210,17 +180,6 @@ class _BooksPlayerState extends State<BooksPlayer> {
                             color: primaryContrastingColor),
                       ),
                       onPressed: () => audioHandler.speedUp()),
-                  // GestureDetector(
-                  //   onTapDown: (details) =>
-                  //       audioHandler.speedUpLongPressStart(),
-                  //   onTapUp: (details) => audioHandler.speedUpLongPressStop(),
-                  //   // onPressed: audioHandler.speedUp,
-                  //   child: RotatedBox(
-                  //     quarterTurns: 2,
-                  //     child: Icon(CupertinoIcons.backward,
-                  //         color: primaryContrastingColor),
-                  //   ),
-                  // ),
                 ]),
           ),
         ]),

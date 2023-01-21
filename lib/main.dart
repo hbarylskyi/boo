@@ -16,15 +16,16 @@ Future<void> main() async {
     ),
   );
 
-  runApp(const AudiobooksApp());
+  runApp(const BooApp());
 }
 
-class AudiobooksApp extends StatelessWidget {
-  const AudiobooksApp({super.key});
+class BooApp extends StatelessWidget {
+  const BooApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     CupertinoThemeData parentTheme = CupertinoTheme.of(context);
+
     CupertinoThemeData booTheme = parentTheme.copyWith(
       primaryColor: Colors.black87,
       primaryContrastingColor: Colors.white60,
