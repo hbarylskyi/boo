@@ -46,8 +46,9 @@ class _ProgressBarState extends State<ProgressBar> {
   @override
   Widget build(BuildContext context) {
     Color primaryColor = CupertinoTheme.of(context).primaryColor;
+    int magicNumber = 100000;
 
-    int flex = (widget.progress * 100000).toInt();
+    int flex = (widget.progress * magicNumber).toInt();
 
     return GestureDetector(
       key: _progressBarWidget,
@@ -70,7 +71,7 @@ class _ProgressBarState extends State<ProgressBar> {
               ),
             ),
             Flexible(
-              flex: 100000 - flex,
+              flex: magicNumber - flex,
               child: Container(color: primaryColor.withOpacity(0)),
             ),
           ],

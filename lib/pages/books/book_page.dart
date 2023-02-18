@@ -50,6 +50,11 @@ class _BookPageState extends State<BookPage> {
                 child: BlocBuilder<ChaptersCubit, List<Chapter>>(
                   bloc: chaptersCubit,
                   builder: (BuildContext context, chapters) {
+                    chapters.sort((a, b) {
+                      // print(a.metadata);
+                      return a.name.compareTo(b.name);
+                    });
+
                     return Column(
                         children: chapters
                             .map((chapter) => ChapterRow(

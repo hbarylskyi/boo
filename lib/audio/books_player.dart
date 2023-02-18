@@ -95,8 +95,8 @@ class _BooksPlayerState extends State<BooksPlayer> {
     String durationText = '';
 
     if (_duration.inSeconds != 0) {
-      String dur = _duration.toString();
-      durationText = ' ($dur)';
+      String dur = _duration.toString().split('.')[0];
+      durationText = ' $dur';
     }
 
     String speedText = '';
